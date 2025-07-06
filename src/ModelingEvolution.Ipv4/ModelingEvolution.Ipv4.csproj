@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    
+    <!-- Package Information -->
+    <PackageId>ModelingEvolution.Ipv4</PackageId>
+    <Title>IPv4 Address and Network Utilities</Title>
+    <Authors>ModelingEvolution</Authors>
+    <Company>ModelingEvolution</Company>
+    <Product>ModelingEvolution.Ipv4</Product>
+    <Description>A lightweight and high-performance IPv4 address library for .NET. Provides strongly-typed IPv4 addresses, network calculations, CIDR notation support, and JSON serialization. Perfect for network programming, configuration management, and Domain-Driven Design applications.</Description>
+    <Copyright>Copyright © ModelingEvolution 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/modelingevolution/ipv4</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/modelingevolution/ipv4</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ipv4;ip;address;network;cidr;networking;json;parsable;ddd;domain-driven-design</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    
+    <!-- Versioning -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    
+    <!-- Build -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelingEvolution.JsonParsableConverter" Version="1.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
