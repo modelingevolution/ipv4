@@ -67,7 +67,15 @@ jobs:
           --api-key ${{ secrets.NUGET_API_KEY }} \
           --skip-duplicate
       continue-on-error: true
-      
+
+    - name: Publish to ModelingEvolution NuGet
+      run: |
+        dotnet nuget push "./artifacts/*.nupkg" \
+          --api-key ${{ secrets.NUGET_API_KEY_ME }} \
+          --source https://nuget.modelingevolution.com/v3/index.json \
+          --skip-duplicate
+      continue-on-error: true
+
     - name: Create GitHub Release
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
