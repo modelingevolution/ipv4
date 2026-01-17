@@ -280,6 +280,18 @@ public readonly record struct Ipv4Address : IParsable<Ipv4Address>, IComparable<
     }
 
     /// <summary>
+    /// Creates an <see cref="Ipv4Address"/> from a 32-bit unsigned integer.
+    /// </summary>
+    /// <param name="value">The IPv4 address as a 32-bit unsigned integer in network byte order.</param>
+    /// <returns>An <see cref="Ipv4Address"/> equivalent to the specified integer.</returns>
+    /// <example>
+    /// <code>
+    /// var address = Ipv4Address.From(0xC0A80101u); // 192.168.1.1
+    /// </code>
+    /// </example>
+    public static Ipv4Address From(uint value) => new(value);
+
+    /// <summary>
     /// Creates an <see cref="Ipv4Address"/> from a <see cref="System.Net.IPAddress"/>.
     /// </summary>
     /// <param name="ipAddress">The <see cref="IPAddress"/> to convert.</param>
