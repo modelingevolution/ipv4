@@ -141,6 +141,45 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
     public byte[] GetBytes() => new[] { B0, B1, B2, B3, B4, B5 };
 
     /// <summary>
+    /// Copies the MAC address bytes to the specified byte array.
+    /// </summary>
+    /// <param name="destination">The destination byte array.</param>
+    /// <param name="offset">The zero-based offset in destination at which copying begins.</param>
+    /// <exception cref="ArgumentNullException">Thrown when destination is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when offset is negative or destination is too small.</exception>
+    public void CopyTo(byte[] destination, int offset = 0)
+    {
+        ArgumentNullException.ThrowIfNull(destination);
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(offset + 6, destination.Length, nameof(offset));
+
+        destination[offset] = B0;
+        destination[offset + 1] = B1;
+        destination[offset + 2] = B2;
+        destination[offset + 3] = B3;
+        destination[offset + 4] = B4;
+        destination[offset + 5] = B5;
+    }
+
+    /// <summary>
+    /// Copies the MAC address bytes to the specified span.
+    /// </summary>
+    /// <param name="destination">The destination span.</param>
+    /// <exception cref="ArgumentException">Thrown when destination is too small.</exception>
+    public void CopyTo(Span<byte> destination)
+    {
+        if (destination.Length < 6)
+            throw new ArgumentException("Destination span must be at least 6 bytes.", nameof(destination));
+
+        destination[0] = B0;
+        destination[1] = B1;
+        destination[2] = B2;
+        destination[3] = B3;
+        destination[4] = B4;
+        destination[5] = B5;
+    }
+
+    /// <summary>
     /// Creates a <see cref="MacAddress"/> from a 48-bit unsigned integer.
     /// </summary>
     /// <param name="value">The MAC address as a 64-bit unsigned integer (lower 48 bits used).</param>
