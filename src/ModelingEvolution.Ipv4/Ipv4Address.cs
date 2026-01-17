@@ -238,12 +238,12 @@ public readonly record struct Ipv4Address : IParsable<Ipv4Address>, IComparable<
     /// <returns>An <see cref="Ipv4Address"/> equivalent to the IPv4 address contained in <paramref name="s"/>.</returns>
     /// <exception cref="FormatException">Thrown when <paramref name="s"/> is not a valid IPv4 address.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="s"/> is null.</exception>
-    public static Ipv4Address Parse(string s, IFormatProvider? provider)
+    public static Ipv4Address Parse(string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(s);
-        
-        return TryParse(s, provider, out var result) 
-            ? result 
+
+        return TryParse(s, provider, out var result)
+            ? result
             : throw new FormatException($"Invalid IPv4 address format: '{s}'");
     }
 

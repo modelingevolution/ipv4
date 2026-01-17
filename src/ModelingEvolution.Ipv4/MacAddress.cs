@@ -194,7 +194,7 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
     /// <returns>A <see cref="MacAddress"/> equivalent to the address contained in <paramref name="s"/>.</returns>
     /// <exception cref="FormatException">Thrown when <paramref name="s"/> is not a valid MAC address.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="s"/> is null.</exception>
-    public static MacAddress Parse(string s, IFormatProvider? provider)
+    public static MacAddress Parse(string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(s);
 

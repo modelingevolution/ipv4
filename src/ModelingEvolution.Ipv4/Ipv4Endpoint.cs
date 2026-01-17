@@ -11,7 +11,7 @@ namespace ModelingEvolution.Ipv4;
 /// <remarks>
 /// <para>
 /// This struct provides a strongly-typed representation of network endpoints combining
-/// an <see cref="Ipv4Address"/> with a <see cref="Port"/>. It implements
+/// an <see cref="Ipv4Address"/> with a <see cref="IpPort"/>. It implements
 /// <see cref="IParsable{TSelf}"/> for seamless JSON serialization and provides
 /// implicit conversions to/from <see cref="IPEndPoint"/>.
 /// </para>
@@ -21,7 +21,7 @@ namespace ModelingEvolution.Ipv4;
 /// // Create endpoints
 /// var endpoint1 = new Ipv4Endpoint("192.168.1.100", 8080);
 /// var endpoint2 = Ipv4Endpoint.Parse("192.168.1.100:443");
-/// var endpoint3 = new Ipv4Endpoint(Ipv4Address.Loopback, Port.Http);
+/// var endpoint3 = new Ipv4Endpoint(Ipv4Address.Loopback, IpPort.Http);
 ///
 /// // From IPEndPoint
 /// var ipEndPoint = new IPEndPoint(IPAddress.Parse("10.0.0.1"), 3000);
@@ -49,14 +49,14 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
     /// <summary>
     /// Gets the port component.
     /// </summary>
-    public Port Port { get; }
+    public IpPort Port { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Ipv4Endpoint"/> struct.
     /// </summary>
     /// <param name="address">The IPv4 address.</param>
     /// <param name="port">The port number.</param>
-    public Ipv4Endpoint(Ipv4Address address, Port port)
+    public Ipv4Endpoint(Ipv4Address address, IpPort port)
     {
         Address = address;
         Port = port;
@@ -70,7 +70,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
     public Ipv4Endpoint(Ipv4Address address, int port)
     {
         Address = address;
-        Port = new Port(port);
+        Port = new IpPort(port);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
     public Ipv4Endpoint(string address, int port)
     {
         Address = Ipv4Address.Parse(address, null);
-        Port = new Port(port);
+        Port = new IpPort(port);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
 
         return new Ipv4Endpoint(
             Ipv4Address.FromIPAddress(endPoint.Address),
-            new Port(endPoint.Port)
+            new IpPort(endPoint.Port)
         );
     }
 
@@ -130,7 +130,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
     /// <returns>An <see cref="Ipv4Endpoint"/> equivalent to the endpoint contained in <paramref name="s"/>.</returns>
     /// <exception cref="FormatException">Thrown when <paramref name="s"/> is not a valid endpoint.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="s"/> is null.</exception>
-    public static Ipv4Endpoint Parse(string s, IFormatProvider? provider)
+    public static Ipv4Endpoint Parse(string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(s);
 
@@ -164,7 +164,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
         if (!Ipv4Address.TryParse(addressPart, provider, out var address))
             return false;
 
-        if (!Port.TryParse(portPart, provider, out var port))
+        if (!IpPort.TryParse(portPart, provider, out var port))
             return false;
 
         result = new Ipv4Endpoint(address, port);
@@ -204,7 +204,7 @@ public readonly record struct Ipv4Endpoint : IParsable<Ipv4Endpoint>, IComparabl
     /// </summary>
     /// <param name="address">The IPv4 address.</param>
     /// <param name="port">The port number.</param>
-    public void Deconstruct(out Ipv4Address address, out Port port)
+    public void Deconstruct(out Ipv4Address address, out IpPort port)
     {
         address = Address;
         port = Port;

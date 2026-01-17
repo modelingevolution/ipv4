@@ -191,12 +191,12 @@ public readonly record struct Ipv4Configuration : IParsable<Ipv4Configuration>
     /// var config2 = Ipv4Configuration.Parse("10.0.0.5/8 gateway 10.0.0.1");
     /// </code>
     /// </example>
-    public static Ipv4Configuration Parse(string s, IFormatProvider? provider)
+    public static Ipv4Configuration Parse(string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(s);
-        
-        return TryParse(s, provider, out var result) 
-            ? result 
+
+        return TryParse(s, provider, out var result)
+            ? result
             : throw new FormatException($"Invalid IPv4 configuration format: '{s}'. Expected format: 'address/prefix gw gateway'");
     }
 

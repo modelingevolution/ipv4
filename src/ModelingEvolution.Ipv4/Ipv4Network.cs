@@ -253,12 +253,12 @@ public readonly record struct Ipv4Network : IParsable<Ipv4Network>, IComparable<
     /// <returns>An <see cref="Ipv4Network"/> equivalent to the network contained in <paramref name="s"/>.</returns>
     /// <exception cref="FormatException">Thrown when <paramref name="s"/> is not a valid IPv4 network in CIDR notation.</exception>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="s"/> is null.</exception>
-    public static Ipv4Network Parse(string s, IFormatProvider? provider)
+    public static Ipv4Network Parse(string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(s);
-        
-        return TryParse(s, provider, out var result) 
-            ? result 
+
+        return TryParse(s, provider, out var result)
+            ? result
             : throw new FormatException($"Invalid IPv4 network format: '{s}'. Expected format: 'x.x.x.x/y'");
     }
 
