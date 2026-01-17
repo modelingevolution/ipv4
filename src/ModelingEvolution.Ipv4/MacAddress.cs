@@ -39,97 +39,113 @@ namespace ModelingEvolution.Ipv4;
 [JsonConverter(typeof(JsonParsableConverter<MacAddress>))]
 public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<MacAddress>
 {
-    private readonly byte _b0, _b1, _b2, _b3, _b4, _b5;
+    private readonly ulong _value; // Lower 48 bits used
 
     /// <summary>
     /// Gets the broadcast MAC address (FF:FF:FF:FF:FF:FF).
     /// </summary>
-    public static MacAddress Broadcast { get; } = new(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+    public static MacAddress Broadcast { get; } = new(0xFFFFFFFFFFFFUL);
 
     /// <summary>
     /// Gets the zero/empty MAC address (00:00:00:00:00:00).
     /// </summary>
-    public static MacAddress None { get; } = new(0, 0, 0, 0, 0, 0);
+    public static MacAddress None { get; } = new(0UL);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MacAddress"/> struct from a 48-bit value.
+    /// </summary>
+    /// <param name="value">The MAC address as a 64-bit unsigned integer (lower 48 bits used).</param>
+    public MacAddress(ulong value)
+    {
+        _value = value & 0xFFFFFFFFFFFFUL; // Mask to 48 bits
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MacAddress"/> struct from six bytes.
     /// </summary>
     public MacAddress(byte b0, byte b1, byte b2, byte b3, byte b4, byte b5)
     {
-        _b0 = b0;
-        _b1 = b1;
-        _b2 = b2;
-        _b3 = b3;
-        _b4 = b4;
-        _b5 = b5;
+        _value = ((ulong)b0 << 40) | ((ulong)b1 << 32) | ((ulong)b2 << 24) |
+                 ((ulong)b3 << 16) | ((ulong)b4 << 8) | b5;
     }
+
+    /// <summary>
+    /// Gets the raw 48-bit value of this MAC address.
+    /// </summary>
+    public ulong Value => _value;
 
     /// <summary>
     /// Gets the first byte of the MAC address.
     /// </summary>
-    public byte B0 => _b0;
+    public byte B0 => (byte)((_value >> 40) & 0xFF);
 
     /// <summary>
     /// Gets the second byte of the MAC address.
     /// </summary>
-    public byte B1 => _b1;
+    public byte B1 => (byte)((_value >> 32) & 0xFF);
 
     /// <summary>
     /// Gets the third byte of the MAC address.
     /// </summary>
-    public byte B2 => _b2;
+    public byte B2 => (byte)((_value >> 24) & 0xFF);
 
     /// <summary>
     /// Gets the fourth byte of the MAC address.
     /// </summary>
-    public byte B3 => _b3;
+    public byte B3 => (byte)((_value >> 16) & 0xFF);
 
     /// <summary>
     /// Gets the fifth byte of the MAC address.
     /// </summary>
-    public byte B4 => _b4;
+    public byte B4 => (byte)((_value >> 8) & 0xFF);
 
     /// <summary>
     /// Gets the sixth byte of the MAC address.
     /// </summary>
-    public byte B5 => _b5;
+    public byte B5 => (byte)(_value & 0xFF);
 
     /// <summary>
     /// Gets whether this is the broadcast address (FF:FF:FF:FF:FF:FF).
     /// </summary>
-    public bool IsBroadcast => _b0 == 0xFF && _b1 == 0xFF && _b2 == 0xFF &&
-                               _b3 == 0xFF && _b4 == 0xFF && _b5 == 0xFF;
+    public bool IsBroadcast => _value == 0xFFFFFFFFFFFFUL;
 
     /// <summary>
     /// Gets whether this is a multicast address (least significant bit of first byte is 1).
     /// </summary>
-    public bool IsMulticast => (_b0 & 0x01) == 0x01;
+    public bool IsMulticast => (B0 & 0x01) == 0x01;
 
     /// <summary>
     /// Gets whether this is a unicast address (least significant bit of first byte is 0).
     /// </summary>
-    public bool IsUnicast => (_b0 & 0x01) == 0x00;
+    public bool IsUnicast => (B0 & 0x01) == 0x00;
 
     /// <summary>
     /// Gets whether this is a locally administered address (second least significant bit of first byte is 1).
     /// </summary>
-    public bool IsLocallyAdministered => (_b0 & 0x02) == 0x02;
+    public bool IsLocallyAdministered => (B0 & 0x02) == 0x02;
 
     /// <summary>
     /// Gets whether this is a universally administered (OUI-based) address.
     /// </summary>
-    public bool IsUniversallyAdministered => (_b0 & 0x02) == 0x00;
+    public bool IsUniversallyAdministered => (B0 & 0x02) == 0x00;
 
     /// <summary>
-    /// Gets the OUI (Organizationally Unique Identifier) - the first three bytes.
+    /// Gets the OUI (Organizationally Unique Identifier) - the upper 24 bits.
     /// </summary>
-    public (byte, byte, byte) Oui => (_b0, _b1, _b2);
+    public uint Oui => (uint)(_value >> 24);
 
     /// <summary>
     /// Gets the bytes of this MAC address.
     /// </summary>
     /// <returns>A 6-byte array containing the MAC address.</returns>
-    public byte[] GetBytes() => new[] { _b0, _b1, _b2, _b3, _b4, _b5 };
+    public byte[] GetBytes() => new[] { B0, B1, B2, B3, B4, B5 };
+
+    /// <summary>
+    /// Creates a <see cref="MacAddress"/> from a 48-bit unsigned integer.
+    /// </summary>
+    /// <param name="value">The MAC address as a 64-bit unsigned integer (lower 48 bits used).</param>
+    /// <returns>A new <see cref="MacAddress"/> instance.</returns>
+    public static MacAddress From(ulong value) => new(value);
 
     /// <summary>
     /// Creates a <see cref="MacAddress"/> from a byte array.
@@ -167,7 +183,7 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
     /// <returns>A string in the format "AA:BB:CC:DD:EE:FF".</returns>
     public override string ToString()
     {
-        return $"{_b0:X2}:{_b1:X2}:{_b2:X2}:{_b3:X2}:{_b4:X2}:{_b5:X2}";
+        return $"{B0:X2}:{B1:X2}:{B2:X2}:{B3:X2}:{B4:X2}:{B5:X2}";
     }
 
     /// <summary>
@@ -181,9 +197,9 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
         var format = uppercase ? "X2" : "x2";
         if (separator == null)
         {
-            return $"{_b0.ToString(format)}{_b1.ToString(format)}{_b2.ToString(format)}{_b3.ToString(format)}{_b4.ToString(format)}{_b5.ToString(format)}";
+            return $"{B0.ToString(format)}{B1.ToString(format)}{B2.ToString(format)}{B3.ToString(format)}{B4.ToString(format)}{B5.ToString(format)}";
         }
-        return $"{_b0.ToString(format)}{separator}{_b1.ToString(format)}{separator}{_b2.ToString(format)}{separator}{_b3.ToString(format)}{separator}{_b4.ToString(format)}{separator}{_b5.ToString(format)}";
+        return $"{B0.ToString(format)}{separator}{B1.ToString(format)}{separator}{B2.ToString(format)}{separator}{B3.ToString(format)}{separator}{B4.ToString(format)}{separator}{B5.ToString(format)}";
     }
 
     /// <summary>
@@ -282,20 +298,7 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
     /// <summary>
     /// Compares this instance with another <see cref="MacAddress"/>.
     /// </summary>
-    public int CompareTo(MacAddress other)
-    {
-        int cmp = _b0.CompareTo(other._b0);
-        if (cmp != 0) return cmp;
-        cmp = _b1.CompareTo(other._b1);
-        if (cmp != 0) return cmp;
-        cmp = _b2.CompareTo(other._b2);
-        if (cmp != 0) return cmp;
-        cmp = _b3.CompareTo(other._b3);
-        if (cmp != 0) return cmp;
-        cmp = _b4.CompareTo(other._b4);
-        if (cmp != 0) return cmp;
-        return _b5.CompareTo(other._b5);
-    }
+    public int CompareTo(MacAddress other) => _value.CompareTo(other._value);
 
     /// <summary>
     /// Implicitly converts a string to a <see cref="MacAddress"/>.
@@ -306,4 +309,14 @@ public readonly record struct MacAddress : IParsable<MacAddress>, IComparable<Ma
     /// Implicitly converts a byte array to a <see cref="MacAddress"/>.
     /// </summary>
     public static implicit operator MacAddress(byte[] bytes) => From(bytes);
+
+    /// <summary>
+    /// Implicitly converts a <see cref="ulong"/> to a <see cref="MacAddress"/>.
+    /// </summary>
+    public static implicit operator MacAddress(ulong value) => new(value);
+
+    /// <summary>
+    /// Explicitly converts a <see cref="MacAddress"/> to a <see cref="ulong"/>.
+    /// </summary>
+    public static explicit operator ulong(MacAddress mac) => mac._value;
 }
