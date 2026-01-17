@@ -376,4 +376,17 @@ public readonly record struct Ipv4Address : IParsable<Ipv4Address>, IComparable<
     {
         return FromIPAddress(ipAddress);
     }
+
+    /// <summary>
+    /// Creates an <see cref="Ipv4Endpoint"/> by combining an address and port.
+    /// </summary>
+    /// <param name="address">The IPv4 address.</param>
+    /// <param name="port">The port.</param>
+    /// <returns>A new <see cref="Ipv4Endpoint"/> instance.</returns>
+    /// <example>
+    /// <code>
+    /// var endpoint = Ipv4Address.Parse("192.168.1.100") + IpPort.Http;
+    /// </code>
+    /// </example>
+    public static Ipv4Endpoint operator +(Ipv4Address address, IpPort port) => new(address, port);
 }
