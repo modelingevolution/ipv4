@@ -14,6 +14,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write   # Trusted Publishing: lets NuGet/login mint a 1-hour key
     
     steps:
     - name: Checkout code
@@ -53,18 +56,25 @@ jobs:
           -p:Version=${{ steps.version.outputs.VERSION }} \
           --output ./artifacts
           
+    - name: NuGet login (OIDC -> temporary API key)
+      # nuget.org Trusted Publishing: no long-lived key. The policy on nuget.org names this repo and this workflow
+      # file; `user` is the nuget.org username of the POLICY CREATOR (not the package owner / org).
+      id: nuget_login
+      uses: NuGet/login@v1
+      with:
+        user: rafal.maciag
     - name: Push to NuGet
       run: |
         dotnet nuget push ./artifacts/*.nupkg \
           --source https://api.nuget.org/v3/index.json \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
           --skip-duplicate
           
     - name: Push symbols to NuGet
       run: |
         dotnet nuget push ./artifacts/*.snupkg \
           --source https://api.nuget.org/v3/index.json \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} \
           --skip-duplicate
       continue-on-error: true
 
